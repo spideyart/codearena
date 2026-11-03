@@ -683,8 +683,14 @@ def get_problem(problem_id):
 
 
 def public_problem(problem):
-    """Problem as sent to the browser: samples only, never hidden tests."""
-    return {key: value for key, value in problem.items() if key != "hidden"}
+    """Problem as sent to the browser: samples only.
+
+    Hidden tests are never sent, and neither is the starter code: it is
+    the perfect solution, so it stays hidden until the user asks for it
+    with the Show Answer button (see /api/problems/<id>/answer).
+    """
+    return {key: value for key, value in problem.items()
+            if key not in ("hidden", "starter_code")}
 
 
 def public_problems():

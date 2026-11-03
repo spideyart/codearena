@@ -49,7 +49,9 @@ async function selectProblem(id) {
   document.getElementById("problem-samples").innerHTML = current.samples.map((s, i) => `
     <div class="test-row"><b>Sample ${i + 1}</b><br>Input:<pre>${esc(s.input)}</pre>Output:<pre>${esc(s.output)}</pre></div>
   `).join("");
-  document.getElementById("code").value = current.starter_code || "";
+  // The answer stays hidden: the editor starts blank so the user
+  // writes their own solution first. Show Answer fills it on demand.
+  document.getElementById("code").value = "";
   document.getElementById("verdict").hidden = true;
   document.getElementById("test-results").innerHTML = "";
 }
@@ -85,6 +87,20 @@ document.getElementById("run-btn").addEventListener("click", async () => {
   try {
     const data = await postJson("/api/run-sample", { problem_id: current.id, code: document.getElementById("code").value });
     showVerdict(data, testsHtml(data.tests, "Sample tests"));
+  } catch (e) { alert(e.message); }
+});
+
+document.getElementById("show-answer-btn").addEventListener("click", async () => {
+  if (!current) return;
+  const editor = document.getElementById("code");
+  try {
+    const res = await fetch(`/api/problems/${current.id}/answer`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Could not load the answer.");
+    if (editor.value.trim() !== "" && editor.value !== data.starter_code &&
+        !confirm("Replace your code with the perfect solution? Your current code will be lost.")) return;
+    editor.value = data.starter_code || "";
+    editor.focus();
   } catch (e) { alert(e.message); }
 });
 

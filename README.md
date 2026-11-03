@@ -15,10 +15,12 @@ python app.py
 
 Then open http://127.0.0.1:5000
 
-Try it: pick "Sum of Two Numbers", keep the starter code, enter any
-handle, and click Submit. Then change the code to `print(0)` and submit
-again to see a Wrong Answer. Try `import os` to see a Blocked verdict,
-and `while True: pass` to see Time Limit Exceeded (2 seconds per test).
+Try it: pick "Sum of Two Numbers", write your own code, enter any
+handle, and click Submit. The perfect solution is hidden at first —
+click Show Answer if you don't want to write it yourself. Then change
+the code to `print(0)` and submit again to see a Wrong Answer. Try
+`import os` to see a Blocked verdict, and `while True: pass` to see
+Time Limit Exceeded (2 seconds per test).
 
 ## What it does
 

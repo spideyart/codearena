@@ -34,6 +34,21 @@ def api_problem(problem_id):
     return jsonify(public_problem(problem))
 
 
+@app.route("/api/problems/<problem_id>/answer")
+def api_answer(problem_id):
+    """Reveal the perfect solution for a problem, only when asked.
+
+    The starter code is deliberately absent from the public problem
+    responses, so the editor starts blank and the user writes their own
+    solution first. This endpoint returns it on demand for the
+    Show Answer button.
+    """
+    problem = get_problem(problem_id)
+    if not problem:
+        return jsonify({"error": "Problem not found."}), 404
+    return jsonify({"starter_code": problem["starter_code"]})
+
+
 @app.route("/api/run-sample", methods=["POST"])
 def api_run_sample():
     data = request.get_json(silent=True) or {}

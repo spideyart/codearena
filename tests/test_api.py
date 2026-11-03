@@ -40,6 +40,30 @@ def test_submit_wrong_answer():
     assert res.get_json()["verdict"] == "Wrong Answer"
 
 
+def test_problems_hide_starter_code_too():
+    # The perfect solution must not leak through the public problem list
+    # or the single-problem endpoint; it only comes from /answer.
+    data = client.get("/api/problems").get_json()
+    assert all("starter_code" not in p for p in data)
+    one = client.get("/api/problems/sum-two").get_json()
+    assert "starter_code" not in one and "hidden" not in one
+
+
+def test_show_answer_returns_perfect_solution():
+    res = client.get("/api/problems/sum-two/answer")
+    assert res.status_code == 200
+    code = res.get_json()["starter_code"]
+    assert "print(a + b)" in code
+    # The revealed answer must itself be Accepted on its own problem.
+    data = client.post("/api/submit", json={
+        "handle": "answercheck",
+        "problem_id": "sum-two",
+        "code": code,
+    }).get_json()
+    assert data["verdict"] == "Accepted"
+    assert client.get("/api/problems/nope/answer").status_code == 404
+
+
 def test_run_sample():
     res = client.post("/api/run-sample", json={
         "handle": "x",
