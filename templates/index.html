@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="CodeArena — a mini online judge. Write Python, submit, and get a verdict against hidden tests.">
+<title>CodeArena — Mini Online Judge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Playfair+Display:wght@700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<main>
+  <header class="hero">
+    <span class="badge">Mini Online Judge &middot; Python &middot; Hidden Tests</span>
+    <h1>Code<span>Arena</span></h1>
+    <p class="tagline">Pick a problem, write Python, submit — and get a real verdict: Accepted, Wrong Answer, Time Limit, or Runtime Error. No signup, no API key.</p>
+  </header>
+
+  <div class="layout">
+    <section class="card problems-card">
+      <h2>Problems</h2>
+      <div id="problem-list"></div>
+    </section>
+
+    <section class="card detail-card">
+      <h2 id="problem-title">Choose a problem</h2>
+      <p id="problem-difficulty" class="muted"></p>
+      <p id="problem-statement"></p>
+      <h3>Input</h3>
+      <p id="problem-input"></p>
+      <h3>Output</h3>
+      <p id="problem-output"></p>
+      <h3>Constraints</h3>
+      <p id="problem-constraints"></p>
+      <h3>Sample tests</h3>
+      <div id="problem-samples"></div>
+
+      <label class="field-label" for="handle">Your handle</label>
+      <input type="text" id="handle" placeholder="e.g. spidey" maxlength="30">
+      <label class="field-label" for="code">Your Python code</label>
+      <textarea id="code" rows="14" spellcheck="false" placeholder="Write your solution here…"></textarea>
+      <p class="muted small">Runs with input() / print(). Imports are limited to math. open, eval, exec and private attributes are blocked. 2 seconds per test.</p>
+      <div class="actions">
+        <button type="button" id="run-btn">Run sample tests</button>
+        <button type="button" id="submit-btn" class="primary">Submit</button>
+      </div>
+      <div id="verdict" class="verdict" hidden></div>
+      <div id="test-results"></div>
+    </section>
+  </div>
+
+  <div class="layout">
+    <section class="card">
+      <h2>Leaderboard</h2>
+      <p class="muted small">Ranked by problems solved, then fewest submissions.</p>
+      <div id="leaderboard"></div>
+    </section>
+    <section class="card">
+      <h2>Recent submissions</h2>
+      <div id="submissions"></div>
+    </section>
+  </div>
+
+  <p class="footer">Royal black &middot; Gold accents &middot; Hidden tests never leave the server</p>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>
