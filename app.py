@@ -9,6 +9,7 @@ from flask import Flask, jsonify, render_template, request
 
 from judge.problems import get_problem, public_problem, public_problems
 from judge.runner import judge
+from judge.validators import get_validator
 from judge.store import add_submission, leaderboard, recent_submissions
 
 app = Flask(__name__)
@@ -44,7 +45,10 @@ def api_run_sample():
         return jsonify({"error": "Code is empty."}), 400
     if len(code) > MAX_CODE_CHARS:
         return jsonify({"error": "Code is too long."}), 400
-    verdict, passed, total, per_test = judge(code, problem["samples"], reveal_details=True)
+    verdict, passed, total, per_test = judge(
+        code, problem["samples"], reveal_details=True,
+        validator=get_validator(problem["id"]),
+    )
     return jsonify({"verdict": verdict, "passed": passed, "total": total, "tests": per_test})
 
 
@@ -62,11 +66,12 @@ def api_submit():
         return jsonify({"error": "Code is empty."}), 400
     if len(code) > MAX_CODE_CHARS:
         return jsonify({"error": "Code is too long."}), 400
+    validator = get_validator(problem["id"])
     sample_verdict, sample_passed, sample_total, sample_tests = judge(
-        code, problem["samples"], reveal_details=True
+        code, problem["samples"], reveal_details=True, validator=validator
     )
     hidden_verdict, hidden_passed, hidden_total, hidden_tests = judge(
-        code, problem["hidden"], reveal_details=False
+        code, problem["hidden"], reveal_details=False, validator=validator
     )
     total = sample_total + hidden_total
     passed = sample_passed + hidden_passed

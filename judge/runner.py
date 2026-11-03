@@ -67,8 +67,14 @@ def _normalise(text):
     return "\n".join(line.rstrip() for line in text.strip().splitlines())
 
 
-def run_test(code, test_input, expected_output):
-    """Run one test case. Returns dict with passed, verdict, output, detail."""
+def run_test(code, test_input, expected_output, validator=None):
+    """Run one test case. Returns dict with passed, verdict, output, detail.
+
+    With a validator (a special judge), the output is accepted when the
+    validator says it is a correct answer for this input, even if it
+    differs from the stored expected output. Without one, the output
+    must match the expected output after normalisation.
+    """
     try:
         check_code(code)
     except SyntaxError as exc:
@@ -119,16 +125,24 @@ def run_test(code, test_input, expected_output):
             "output": result.stdout,
             "detail": (result.stderr or "Runtime error").strip()[-500:],
         }
-    passed = _normalise(result.stdout) == _normalise(expected_output)
+    if validator is not None:
+        try:
+            passed = bool(validator(test_input, result.stdout))
+        except Exception:
+            passed = False
+        detail = "" if passed else "Output is not a valid answer for this test."
+    else:
+        passed = _normalise(result.stdout) == _normalise(expected_output)
+        detail = "" if passed else "Output did not match the expected output."
     return {
         "passed": passed,
         "verdict": "Accepted" if passed else "Wrong Answer",
         "output": result.stdout,
-        "detail": "" if passed else "Output did not match the expected output.",
+        "detail": detail,
     }
 
 
-def judge(code, tests, reveal_details=True):
+def judge(code, tests, reveal_details=True, validator=None):
     """Run all tests. Returns (verdict, passed, total, per_test list).
 
     If reveal_details is False (hidden tests), per-test entries carry
@@ -138,7 +152,7 @@ def judge(code, tests, reveal_details=True):
     passed_count = 0
     verdict = "Accepted"
     for i, test in enumerate(tests):
-        result = run_test(code, test["input"], test["output"])
+        result = run_test(code, test["input"], test["output"], validator=validator)
         if result["passed"]:
             passed_count += 1
         elif verdict == "Accepted":

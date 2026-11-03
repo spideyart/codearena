@@ -50,6 +50,22 @@ Hidden tests are never sent to the browser. The public API returns
 samples only; hidden results show pass/fail per test, without the
 hidden input or expected output.
 
+## Special judges (problems with more than one correct answer)
+
+Most problems have one correct output and are checked by exact
+(whitespace-normalised) comparison. Four problems can have several
+correct answers, and for those `judge/validators.py` checks validity
+instead of exact text — the validator lives only on the server:
+
+- **Two Sum Indices:** any pair `i < j` with `arr[i] + arr[j] == target`
+- **Binary Search Index:** any index holding the target, or `-1` if absent
+- **Longest Word:** any word of maximum length
+- **Most Frequent Element:** any value with maximal frequency
+
+To add a special judge for a new problem, add a validator function in
+`judge/validators.py`, register it in `VALIDATORS`, and state the
+"any valid answer is accepted" rule in that problem's statement.
+
 ## Problems handled
 
 - **Infinite loops:** 2-second timeout per test, subprocess killed.
@@ -84,8 +100,9 @@ environment variables or API keys are needed.
 ```
 app.py                 Flask app, routes, submission handling
 judge/
-  problems.py          5 seeded problems, samples + hidden tests
+  problems.py          55 problems, samples + hidden tests
   runner.py            AST check, isolated subprocess, verdicts
+  validators.py        special judges for multi-answer problems
   store.py             in-memory submissions + leaderboard
 templates/index.html   single page UI
 static/app.js          problems, editor, verdicts, leaderboard client
