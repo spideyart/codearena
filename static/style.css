@@ -62,7 +62,7 @@ input[type="text"], textarea {
   background: #0a0a12; color: var(--ivory); font-size: 1rem; outline: none;
 }
 input[type="text"]:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18); }
-textarea { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.95rem; line-height: 1.5; resize: vertical; }
+textarea { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.95rem; line-height: 1.5; resize: vertical; scroll-margin-top: 80px; }
 .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
 button {
   padding: 12px 20px; border-radius: 999px; border: 1px solid rgba(212, 175, 55, 0.45);

@@ -103,9 +103,13 @@ async function selectProblem(id, goToPractice) {
   document.getElementById("show-answer-btn").textContent = "Show Answer";
   document.getElementById("verdict").hidden = true;
   document.getElementById("test-results").innerHTML = "";
-  // Selecting a problem takes you straight to the writing page —
-  // no scrolling down to find the editor.
-  if (goToPractice) showPage("practice");
+  // Selecting a problem takes you straight to the writing area —
+  // the Practice page opens scrolled to the editor itself, so a new
+  // user is not left scrolling past the statement to find it.
+  if (goToPractice) {
+    showPage("practice");
+    document.getElementById("code").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 }
 
 function showVerdict(data, testsHtml) {
