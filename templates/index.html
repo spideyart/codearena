@@ -11,16 +11,25 @@
 <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+<header class="topbar">
+  <div class="brand">Code<span>Arena</span></div>
+  <nav class="menu" aria-label="Main menu">
+    <button type="button" class="nav-btn active" data-page="problems">Problems</button>
+    <button type="button" class="nav-btn" data-page="practice">Practice</button>
+    <button type="button" class="nav-btn" data-page="leaderboard">Leaderboard</button>
+  </nav>
+</header>
 <main>
-  <header class="hero">
-    <span class="badge">Mini Online Judge &middot; Python &middot; Hidden Tests</span>
-    <h1>Code<span>Arena</span></h1>
-    <p class="tagline">Pick a problem, write Python, submit — and get a real verdict: Accepted, Wrong Answer, Time Limit, or Runtime Error. No signup, no API key.</p>
-  </header>
-
-  <div class="layout">
+  <!-- Page 1: Problems -->
+  <section id="page-problems" class="page">
+    <div class="hero">
+      <span class="badge">Mini Online Judge &middot; Python &middot; Hidden Tests</span>
+      <h1>Code<span>Arena</span></h1>
+      <p class="tagline">Pick a problem, write Python, submit — and get a real verdict: Accepted, Wrong Answer, Time Limit, or Runtime Error. No signup, no API key.</p>
+    </div>
     <section class="card problems-card">
       <h2>Problems</h2>
+      <input type="text" id="problem-search" class="search-input" placeholder="Search problems…" autocomplete="off">
       <div class="filters">
         <button type="button" class="filter-btn active" data-filter="All">All</button>
         <button type="button" class="filter-btn" data-filter="Easy">Easy</button>
@@ -30,7 +39,16 @@
       <p id="problem-count" class="muted small"></p>
       <div id="problem-list"></div>
     </section>
+  </section>
 
+  <!-- Page 2: Practice / Write here -->
+  <section id="page-practice" class="page" hidden>
+    <section class="card">
+      <h2>Practice</h2>
+      <p class="muted small">Find a problem here without going back to the Problems page.</p>
+      <input type="text" id="practice-search" class="search-input" placeholder="Search a problem to practise…" autocomplete="off">
+      <div id="practice-results"></div>
+    </section>
     <section class="card detail-card">
       <h2 id="problem-title">Choose a problem</h2>
       <p id="problem-difficulty" class="muted"></p>
@@ -54,23 +72,26 @@
         <button type="button" id="show-answer-btn">Show Answer</button>
         <button type="button" id="submit-btn" class="primary">Submit</button>
       </div>
-      <p class="muted small">The perfect solution is hidden at first — write your own code, or use Show Answer if you don't want to.</p>
+      <p class="muted small">The perfect solution is hidden at first — write your own code, or use Show Answer if you don't want to. While it is shown, the button becomes Hide Answer.</p>
       <div id="verdict" class="verdict" hidden></div>
       <div id="test-results"></div>
     </section>
-  </div>
+  </section>
 
-  <div class="layout">
-    <section class="card">
-      <h2>Leaderboard</h2>
-      <p class="muted small">Ranked by problems solved, then fewest submissions.</p>
-      <div id="leaderboard"></div>
-    </section>
-    <section class="card">
-      <h2>Recent submissions</h2>
-      <div id="submissions"></div>
-    </section>
-  </div>
+  <!-- Page 3: Leaderboard (unchanged content, now in the menu) -->
+  <section id="page-leaderboard" class="page" hidden>
+    <div class="layout">
+      <section class="card">
+        <h2>Leaderboard</h2>
+        <p class="muted small">Ranked by problems solved, then fewest submissions.</p>
+        <div id="leaderboard"></div>
+      </section>
+      <section class="card">
+        <h2>Recent submissions</h2>
+        <div id="submissions"></div>
+      </section>
+    </div>
+  </section>
 
   <p class="footer">Royal black &middot; Gold accents &middot; Hidden tests never leave the server</p>
 </main>

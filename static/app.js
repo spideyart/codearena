@@ -1,22 +1,8 @@
 let problems = [];
 let current = null;
 let filter = "All";
-
-function renderProblemList() {
-  const shown = filter === "All" ? problems : problems.filter((p) => p.difficulty === filter);
-  document.getElementById("problem-count").textContent = `Showing ${shown.length} of ${problems.length} problems`;
-  document.getElementById("problem-list").innerHTML = shown.map((p) => `
-    <button class="problem-btn" data-id="${p.id}">${esc(p.title)}<span class="diff">${esc(p.difficulty)}</span></button>
-  `).join("");
-  document.querySelectorAll(".problem-btn").forEach((btn) => {
-    btn.classList.toggle("active", current && btn.dataset.id === current.id);
-    btn.addEventListener("click", () => selectProblem(btn.dataset.id));
-  });
-  document.querySelectorAll(".filter-btn").forEach((b) => {
-    b.classList.toggle("active", b.dataset.filter === filter);
-    b.onclick = () => { filter = b.dataset.filter; renderProblemList(); };
-  });
-}
+let searchQuery = "";
+let answerShown = false;
 
 function esc(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -27,19 +13,80 @@ function verdictClass(v) {
   return v.replace(/ /g, "");
 }
 
+// ---------- Pages: header menu ----------
+function showPage(page) {
+  document.querySelectorAll(".page").forEach((p) => { p.hidden = p.id !== `page-${page}`; });
+  document.querySelectorAll(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.page === page));
+  if (page === "leaderboard") { refreshLeaderboard(); refreshSubmissions(); }
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll(".nav-btn").forEach((b) => {
+  b.addEventListener("click", () => showPage(b.dataset.page));
+});
+
+// ---------- Problems page: search (no dropdown) + difficulty filter ----------
+function visibleProblems() {
+  const q = searchQuery.trim().toLowerCase();
+  return problems.filter((p) =>
+    (filter === "All" || p.difficulty === filter) &&
+    (q === "" || p.title.toLowerCase().includes(q) || p.id.toLowerCase().includes(q))
+  );
+}
+
+function renderProblemList() {
+  const shown = visibleProblems();
+  document.getElementById("problem-count").textContent = `Showing ${shown.length} of ${problems.length} problems`;
+  document.getElementById("problem-list").innerHTML = shown.length ? shown.map((p) => `
+    <button class="problem-btn" data-id="${p.id}">${esc(p.title)}<span class="diff">${esc(p.difficulty)}</span></button>
+  `).join("") : `<p class="muted">No problems match your search.</p>`;
+  document.querySelectorAll("#problem-list .problem-btn").forEach((btn) => {
+    btn.classList.toggle("active", current && btn.dataset.id === current.id);
+    btn.addEventListener("click", () => selectProblem(btn.dataset.id, true));
+  });
+  document.querySelectorAll(".filter-btn").forEach((b) => {
+    b.classList.toggle("active", b.dataset.filter === filter);
+    b.onclick = () => { filter = b.dataset.filter; renderProblemList(); };
+  });
+}
+
+document.getElementById("problem-search").addEventListener("input", (e) => {
+  searchQuery = e.target.value;
+  renderProblemList();
+});
+
+// ---------- Practice page: mini search to pick a problem ----------
+document.getElementById("practice-search").addEventListener("input", (e) => {
+  const q = e.target.value.trim().toLowerCase();
+  const box = document.getElementById("practice-results");
+  if (q === "") { box.innerHTML = ""; return; }
+  const matches = problems.filter((p) =>
+    p.title.toLowerCase().includes(q) || p.id.toLowerCase().includes(q)).slice(0, 8);
+  box.innerHTML = matches.length ? matches.map((p) => `
+    <button class="problem-btn" data-id="${p.id}">${esc(p.title)}<span class="diff">${esc(p.difficulty)}</span></button>
+  `).join("") : `<p class="muted">No problems match your search.</p>`;
+  box.querySelectorAll(".problem-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.getElementById("practice-search").value = "";
+      box.innerHTML = "";
+      selectProblem(btn.dataset.id, true);
+    });
+  });
+});
+
 async function loadProblems() {
   const res = await fetch("/api/problems");
   problems = await res.json();
   renderProblemList();
-  if (problems.length) selectProblem(problems[0].id);
+  // Load the first problem into Practice, but stay on the Problems page.
+  if (problems.length) selectProblem(problems[0].id, false);
   refreshLeaderboard();
   refreshSubmissions();
 }
 
-async function selectProblem(id) {
+async function selectProblem(id, goToPractice) {
   const res = await fetch(`/api/problems/${id}`);
   current = await res.json();
-  document.querySelectorAll(".problem-btn").forEach((b) => b.classList.toggle("active", b.dataset.id === id));
+  document.querySelectorAll("#problem-list .problem-btn").forEach((b) => b.classList.toggle("active", b.dataset.id === id));
   document.getElementById("problem-title").textContent = current.title;
   document.getElementById("problem-difficulty").textContent = current.difficulty;
   document.getElementById("problem-statement").textContent = current.statement;
@@ -52,8 +99,13 @@ async function selectProblem(id) {
   // The answer stays hidden: the editor starts blank so the user
   // writes their own solution first. Show Answer fills it on demand.
   document.getElementById("code").value = "";
+  answerShown = false;
+  document.getElementById("show-answer-btn").textContent = "Show Answer";
   document.getElementById("verdict").hidden = true;
   document.getElementById("test-results").innerHTML = "";
+  // Selecting a problem takes you straight to the writing page —
+  // no scrolling down to find the editor.
+  if (goToPractice) showPage("practice");
 }
 
 function showVerdict(data, testsHtml) {
@@ -90,9 +142,18 @@ document.getElementById("run-btn").addEventListener("click", async () => {
   } catch (e) { alert(e.message); }
 });
 
+// Show Answer <-> Hide Answer toggle.
 document.getElementById("show-answer-btn").addEventListener("click", async () => {
   if (!current) return;
   const editor = document.getElementById("code");
+  const btn = document.getElementById("show-answer-btn");
+  if (answerShown) {
+    editor.value = "";
+    answerShown = false;
+    btn.textContent = "Show Answer";
+    editor.focus();
+    return;
+  }
   try {
     const res = await fetch(`/api/problems/${current.id}/answer`);
     const data = await res.json();
@@ -100,6 +161,8 @@ document.getElementById("show-answer-btn").addEventListener("click", async () =>
     if (editor.value.trim() !== "" && editor.value !== data.starter_code &&
         !confirm("Replace your code with the perfect solution? Your current code will be lost.")) return;
     editor.value = data.starter_code || "";
+    answerShown = true;
+    btn.textContent = "Hide Answer";
     editor.focus();
   } catch (e) { alert(e.message); }
 });
