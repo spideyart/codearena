@@ -22,8 +22,9 @@ and `while True: pass` to see Time Limit Exceeded (2 seconds per test).
 
 ## What it does
 
-- 5 seeded problems (Easy + Medium) with statements, constraints,
-  sample tests, and starter code
+- 55 seeded problems (20 Easy, 20 Medium, 15 Hard) with statements,
+  constraints, sample tests, and starter code — filter the list by
+  difficulty in the UI
 - Sample run: runs only the visible samples and shows your output
 - Full submit: runs samples, then hidden tests, and records a submission
 - Leaderboard: ranked by problems solved, then fewest submissions

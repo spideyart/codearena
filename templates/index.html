@@ -21,6 +21,13 @@
   <div class="layout">
     <section class="card problems-card">
       <h2>Problems</h2>
+      <div class="filters">
+        <button type="button" class="filter-btn active" data-filter="All">All</button>
+        <button type="button" class="filter-btn" data-filter="Easy">Easy</button>
+        <button type="button" class="filter-btn" data-filter="Medium">Medium</button>
+        <button type="button" class="filter-btn" data-filter="Hard">Hard</button>
+      </div>
+      <p id="problem-count" class="muted small"></p>
       <div id="problem-list"></div>
     </section>
 

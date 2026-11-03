@@ -10,7 +10,11 @@ client = app.test_client()
 
 def test_problems_hide_hidden():
     data = client.get("/api/problems").get_json()
-    assert len(data) == 5
+    assert len(data) == 55
+    difficulties = {}
+    for p in data:
+        difficulties[p["difficulty"]] = difficulties.get(p["difficulty"], 0) + 1
+    assert difficulties == {"Easy": 20, "Medium": 20, "Hard": 15}
     assert all("hidden" not in p for p in data)
 
 

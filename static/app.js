@@ -1,5 +1,22 @@
 let problems = [];
 let current = null;
+let filter = "All";
+
+function renderProblemList() {
+  const shown = filter === "All" ? problems : problems.filter((p) => p.difficulty === filter);
+  document.getElementById("problem-count").textContent = `Showing ${shown.length} of ${problems.length} problems`;
+  document.getElementById("problem-list").innerHTML = shown.map((p) => `
+    <button class="problem-btn" data-id="${p.id}">${esc(p.title)}<span class="diff">${esc(p.difficulty)}</span></button>
+  `).join("");
+  document.querySelectorAll(".problem-btn").forEach((btn) => {
+    btn.classList.toggle("active", current && btn.dataset.id === current.id);
+    btn.addEventListener("click", () => selectProblem(btn.dataset.id));
+  });
+  document.querySelectorAll(".filter-btn").forEach((b) => {
+    b.classList.toggle("active", b.dataset.filter === filter);
+    b.onclick = () => { filter = b.dataset.filter; renderProblemList(); };
+  });
+}
 
 function esc(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -13,12 +30,7 @@ function verdictClass(v) {
 async function loadProblems() {
   const res = await fetch("/api/problems");
   problems = await res.json();
-  document.getElementById("problem-list").innerHTML = problems.map((p) => `
-    <button class="problem-btn" data-id="${p.id}">${esc(p.title)}<span class="diff">${esc(p.difficulty)}</span></button>
-  `).join("");
-  document.querySelectorAll(".problem-btn").forEach((btn) => {
-    btn.addEventListener("click", () => selectProblem(btn.dataset.id));
-  });
+  renderProblemList();
   if (problems.length) selectProblem(problems[0].id);
   refreshLeaderboard();
   refreshSubmissions();
